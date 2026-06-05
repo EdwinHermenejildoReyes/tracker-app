@@ -14,8 +14,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "BACKEND_URL", "\"http://YOUR_SERVER_IP:8001\"")
-        buildConfigField("String", "TRACKER_API_KEY", "\"change-this\"")
+        buildConfigField("String", "BACKEND_URL", "\"http://10.141.252.6:8001\"")
+        buildConfigField("String", "TRACKER_API_KEY", "\"change-this-secret-key\"")
     }
 
     buildTypes {
