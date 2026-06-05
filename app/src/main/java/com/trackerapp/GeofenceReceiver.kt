@@ -20,6 +20,14 @@ class GeofenceReceiver : BroadcastReceiver() {
                 if (!alreadyInside) {
                     NotificationHelper.showArrivalNotification(context)
                     prefs.edit().putBoolean(GeofenceConstants.KEY_INSIDE, true).apply()
+
+                    @Suppress("DEPRECATION")
+                    val location = event.triggeringLocation
+                    ArrivalReporter.report(
+                        context,
+                        location?.latitude ?: GeofenceConstants.TARGET_LAT,
+                        location?.longitude ?: GeofenceConstants.TARGET_LNG
+                    )
                 }
             }
             Geofence.GEOFENCE_TRANSITION_EXIT -> {
