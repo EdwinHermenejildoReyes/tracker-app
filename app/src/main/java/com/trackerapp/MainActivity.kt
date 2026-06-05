@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         geofenceManager = GeofenceManager(this)
-        NotificationHelper.createChannel(this)
+        // NotificationHelper.createChannel(this)
 
         setContent {
             TrackerAppTheme {
@@ -52,11 +52,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun requestPermissionsAndStart() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            !hasPermission(Manifest.permission.POST_NOTIFICATIONS)
-        ) {
-            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+        //     !hasPermission(Manifest.permission.POST_NOTIFICATIONS)
+        // ) {
+        //     notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        // }
 
         if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
             requestBackgroundLocationIfNeeded()

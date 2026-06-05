@@ -18,7 +18,7 @@ class GeofenceReceiver : BroadcastReceiver() {
             Geofence.GEOFENCE_TRANSITION_ENTER -> {
                 val alreadyInside = prefs.getBoolean(GeofenceConstants.KEY_INSIDE, false)
                 if (!alreadyInside) {
-                    NotificationHelper.showArrivalNotification(context)
+                    // NotificationHelper.showArrivalNotification(context)
                     prefs.edit().putBoolean(GeofenceConstants.KEY_INSIDE, true).apply()
 
                     @Suppress("DEPRECATION")
