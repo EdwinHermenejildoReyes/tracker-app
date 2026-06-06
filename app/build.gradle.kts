@@ -14,7 +14,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "BACKEND_URL", "\"http://10.141.252.6:8001\"")
+        buildConfigField("String", "BACKEND_URL", "\"https://tracker.margot.rest\"")
         buildConfigField("String", "TRACKER_API_KEY", "\"change-this-secret-key\"")
     }
 
