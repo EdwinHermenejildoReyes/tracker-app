@@ -1,11 +1,26 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
 
+val localProps = Properties().apply {
+    rootProject.file("local.properties").inputStream().use { load(it) }
+}
+
 android {
     namespace = "com.trackerapp"
     compileSdk = 34
+
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file(localProps["KEYSTORE_PATH"] as String)
+            storePassword = localProps["KEYSTORE_PASSWORD"] as String
+            keyAlias = localProps["KEY_ALIAS"] as String
+            keyPassword = localProps["KEY_PASSWORD"] as String
+        }
+    }
 
     defaultConfig {
         applicationId = "com.trackerapp"
@@ -19,12 +34,17 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("float", "GEOFENCE_RADIUS_M", "3f")
+        }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("float", "GEOFENCE_RADIUS_M", "50f")
         }
     }
 
@@ -40,6 +60,10 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    lint {
+        disable += "InvalidFragmentVersionForActivityResult"
     }
 
     composeOptions {

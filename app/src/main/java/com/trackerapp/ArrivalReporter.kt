@@ -18,7 +18,7 @@ object ArrivalReporter {
     private val client = OkHttpClient()
     private val JSON_TYPE = "application/json; charset=utf-8".toMediaType()
 
-    fun report(context: Context, latitude: Double, longitude: Double) {
+    fun report(context: Context, latitude: Double, longitude: Double, eventType: String) {
         if (BuildConfig.BACKEND_URL.contains("YOUR_SERVER_IP")) {
             Log.w("ArrivalReporter", "BACKEND_URL no configurado en build.gradle.kts")
             return
@@ -33,6 +33,7 @@ object ArrivalReporter {
             put("latitude", latitude)
             put("longitude", longitude)
             put("device_id", deviceId)
+            put("event_type", eventType)
         }.toString().toRequestBody(JSON_TYPE)
 
         val request = Request.Builder()
