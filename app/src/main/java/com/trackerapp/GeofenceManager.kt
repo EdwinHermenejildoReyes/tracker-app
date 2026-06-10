@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
@@ -38,13 +39,13 @@ class GeofenceManager(private val context: Context) {
             .build()
 
         val request = GeofencingRequest.Builder()
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .setInitialTrigger(0)
             .addGeofence(geofence)
             .build()
 
         client.addGeofences(request, pendingIntent)
-            .addOnSuccessListener { /* geofence registrada */ }
-            .addOnFailureListener { /* fallo silencioso; se reintenta al reabrir la app */ }
+            .addOnSuccessListener { Log.d("GeofenceManager", "Geofence registrada OK") }
+            .addOnFailureListener { e -> Log.e("GeofenceManager", "Error al registrar geofence: ${e.message}") }
     }
 
     fun removeGeofence() {

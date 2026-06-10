@@ -30,12 +30,12 @@ android {
         versionName = "1.0"
 
         buildConfigField("String", "BACKEND_URL", "\"https://tracker.margot.rest\"")
-        buildConfigField("String", "TRACKER_API_KEY", "\"change-this-secret-key\"")
+        buildConfigField("String", "TRACKER_API_KEY", "\"cDf37NN5PEWsQRJ\"")
     }
 
     buildTypes {
         debug {
-            buildConfigField("float", "GEOFENCE_RADIUS_M", "3f")
+            buildConfigField("float", "GEOFENCE_RADIUS_M", "100f")
         }
         release {
             isMinifyEnabled = false

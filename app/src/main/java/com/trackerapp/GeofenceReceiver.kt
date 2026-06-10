@@ -17,11 +17,16 @@ class GeofenceReceiver : BroadcastReceiver() {
         val lat = location?.latitude ?: GeofenceConstants.TARGET_LAT
         val lng = location?.longitude ?: GeofenceConstants.TARGET_LNG
 
-        when (event.geofenceTransition) {
-            Geofence.GEOFENCE_TRANSITION_ENTER ->
-                ArrivalReporter.report(context, lat, lng, "enter")
-            Geofence.GEOFENCE_TRANSITION_EXIT ->
-                ArrivalReporter.report(context, lat, lng, "exit")
+        val eventType = when (event.geofenceTransition) {
+            Geofence.GEOFENCE_TRANSITION_ENTER -> "enter"
+            Geofence.GEOFENCE_TRANSITION_EXIT -> "exit"
+            else -> return
         }
+
+        val pending = goAsync()
+        Thread {
+            try { ArrivalReporter.report(context, lat, lng, eventType) }
+            finally { pending.finish() }
+        }.start()
     }
 }

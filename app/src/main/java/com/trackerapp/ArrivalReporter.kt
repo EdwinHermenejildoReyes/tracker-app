@@ -3,13 +3,10 @@ package com.trackerapp
 import android.content.Context
 import android.provider.Settings
 import android.util.Log
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 
@@ -42,15 +39,12 @@ object ArrivalReporter {
             .post(body)
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.w("ArrivalReporter", "Error al reportar llegada: ${e.message}")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
+        try {
+            client.newCall(request).execute().use { response ->
                 Log.d("ArrivalReporter", "Llegada reportada: HTTP ${response.code}")
-                response.close()
             }
-        })
+        } catch (e: IOException) {
+            Log.w("ArrivalReporter", "Error al reportar llegada: ${e.message}")
+        }
     }
 }

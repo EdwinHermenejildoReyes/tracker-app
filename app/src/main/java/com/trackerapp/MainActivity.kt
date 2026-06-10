@@ -1,9 +1,13 @@
 package com.trackerapp
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,7 +20,6 @@ import com.trackerapp.ui.theme.TrackerAppTheme
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var geofenceManager: GeofenceManager
     private var isMonitoring by mutableStateOf(false)
 
     private val fineLocationLauncher = registerForActivityResult(
@@ -35,12 +38,10 @@ class MainActivity : ComponentActivity() {
 
     private val notificationLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { /* la app funciona aunque el usuario rechace; la notificación simplemente no aparece */ }
+    ) { startMonitoring() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        geofenceManager = GeofenceManager(this)
-        // NotificationHelper.createChannel(this)
 
         setContent {
             TrackerAppTheme {
@@ -49,15 +50,10 @@ class MainActivity : ComponentActivity() {
         }
 
         requestPermissionsAndStart()
+        requestBatteryOptimizationExclusion()
     }
 
     private fun requestPermissionsAndStart() {
-        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-        //     !hasPermission(Manifest.permission.POST_NOTIFICATIONS)
-        // ) {
-        //     notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        // }
-
         if (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
             requestBackgroundLocationIfNeeded()
         } else {
@@ -76,13 +72,34 @@ class MainActivity : ComponentActivity() {
         ) {
             backgroundLocationLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         } else {
+            requestNotificationPermissionIfNeeded()
+        }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !hasPermission(Manifest.permission.POST_NOTIFICATIONS)
+        ) {
+            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
             startMonitoring()
         }
     }
 
     private fun startMonitoring() {
-        geofenceManager.registerGeofence()
+        startForegroundService(Intent(this, LocationTrackingService::class.java))
         isMonitoring = true
+    }
+
+    private fun requestBatteryOptimizationExclusion() {
+        val pm = getSystemService(PowerManager::class.java)
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            startActivity(
+                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+            )
+        }
     }
 
     private fun hasPermission(permission: String) =
