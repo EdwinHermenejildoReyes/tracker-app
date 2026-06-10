@@ -38,8 +38,8 @@ class LocationTrackingService : Service() {
 
     @SuppressLint("MissingPermission")
     private fun requestLocationUpdates() {
-        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 30_000L)
-            .setMinUpdateIntervalMillis(15_000L)
+        val request = LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 5 * 60_000L)
+            .setMinUpdateIntervalMillis(3 * 60_000L)
             .build()
         fusedLocationClient.removeLocationUpdates(locationCallback)
         fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper())
