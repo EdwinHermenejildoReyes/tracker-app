@@ -19,11 +19,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.trackerapp.GeofenceConstants
 import com.trackerapp.R
 
 @Composable
@@ -42,35 +42,30 @@ fun MainScreen(isMonitoring: Boolean) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_notification),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = Color(0xFF546E7A),
                 modifier = Modifier.size(64.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Tracker App",
+                text = "System Tools",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = "Ubicación monitoreada",
+                text = "Utilidades del sistema",
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primary
+                color = Color(0xFF546E7A)
             )
             Spacer(modifier = Modifier.height(32.dp))
 
             InfoCard {
-                InfoRow("Latitud", GeofenceConstants.TARGET_LAT.toString())
-                InfoRow("Longitud", GeofenceConstants.TARGET_LNG.toString())
-                InfoRow("Radio", "${GeofenceConstants.RADIUS_M.toInt()} m")
                 InfoRow(
                     label = "Estado",
-                    value = if (isMonitoring) "Monitoreando..." else "Permisos requeridos",
-                    valueColor = if (isMonitoring)
-                        androidx.compose.ui.graphics.Color(0xFF2E7D32)
-                    else
-                        MaterialTheme.colorScheme.error
+                    value = if (isMonitoring) "Activo" else "Iniciando...",
+                    valueColor = if (isMonitoring) Color(0xFF2E7D32) else Color(0xFF546E7A)
                 )
+                InfoRow(label = "Versión", value = "1.0.0")
             }
         }
     }
@@ -95,7 +90,7 @@ private fun InfoCard(content: @Composable ColumnScope.() -> Unit) {
 private fun InfoRow(
     label: String,
     value: String,
-    valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant
+    valueColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),

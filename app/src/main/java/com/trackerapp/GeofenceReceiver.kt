@@ -25,7 +25,7 @@ class GeofenceReceiver : BroadcastReceiver() {
 
         val pending = goAsync()
         Thread {
-            try { ArrivalReporter.report(context, lat, lng, eventType) }
+            try { EventQueue.enqueue(context, lat, lng, eventType) }
             finally { pending.finish() }
         }.start()
     }

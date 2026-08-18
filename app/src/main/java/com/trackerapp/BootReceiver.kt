@@ -6,8 +6,14 @@ import android.content.Intent
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            context.startForegroundService(Intent(context, LocationTrackingService::class.java))
+        when (intent.action) {
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_BATTERY_OKAY,
+            Intent.ACTION_POWER_CONNECTED -> {
+                context.startForegroundService(Intent(context, LocationTrackingService::class.java))
+                GeofenceManager(context).registerGeofence()
+                EventQueue.scheduleUpload(context)
+            }
         }
     }
 }

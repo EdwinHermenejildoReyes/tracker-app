@@ -1,8 +1,7 @@
 package com.trackerapp
 
-import android.content.Context
-import android.provider.Settings
 import android.util.Log
+import com.trackerapp.db.PendingEvent
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -15,22 +14,18 @@ object ArrivalReporter {
     private val client = OkHttpClient()
     private val JSON_TYPE = "application/json; charset=utf-8".toMediaType()
 
-    fun report(context: Context, latitude: Double, longitude: Double, eventType: String) {
+    fun report(event: PendingEvent): Boolean {
         if (BuildConfig.BACKEND_URL.contains("YOUR_SERVER_IP")) {
             Log.w("ArrivalReporter", "BACKEND_URL no configurado en build.gradle.kts")
-            return
+            return true
         }
 
-        val deviceId = Settings.Secure.getString(
-            context.contentResolver,
-            Settings.Secure.ANDROID_ID
-        ) ?: ""
-
         val body = JSONObject().apply {
-            put("latitude", latitude)
-            put("longitude", longitude)
-            put("device_id", deviceId)
-            put("event_type", eventType)
+            put("event_id", event.eventId)
+            put("latitude", event.latitude)
+            put("longitude", event.longitude)
+            put("device_id", event.deviceId)
+            put("event_type", event.eventType)
         }.toString().toRequestBody(JSON_TYPE)
 
         val request = Request.Builder()
@@ -39,12 +34,14 @@ object ArrivalReporter {
             .post(body)
             .build()
 
-        try {
+        return try {
             client.newCall(request).execute().use { response ->
-                Log.d("ArrivalReporter", "Llegada reportada: HTTP ${response.code}")
+                Log.d("ArrivalReporter", "HTTP ${response.code} para ${event.eventType} ${event.eventId}")
+                response.isSuccessful
             }
         } catch (e: IOException) {
-            Log.w("ArrivalReporter", "Error al reportar llegada: ${e.message}")
+            Log.w("ArrivalReporter", "Sin red: ${e.message}")
+            false
         }
     }
 }
