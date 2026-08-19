@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 object EventQueue {
 
-    fun enqueue(context: Context, latitude: Double, longitude: Double, eventType: String) {
+    fun enqueue(context: Context, latitude: Double, longitude: Double, eventType: String, durationSeconds: Int? = null) {
         val deviceId = Settings.Secure.getString(
             context.contentResolver, Settings.Secure.ANDROID_ID
         ) ?: ""
@@ -25,6 +25,7 @@ object EventQueue {
             longitude = longitude,
             deviceId = deviceId,
             eventType = eventType,
+            durationSeconds = durationSeconds,
         )
         AppDatabase.get(context).eventDao().insert(event)
         scheduleUpload(context)

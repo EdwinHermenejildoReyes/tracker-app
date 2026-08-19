@@ -78,7 +78,7 @@ class LocationTrackingService : Service() {
         }
 
         if (isInside) {
-            resetStationary()
+            resetStationary(location)
         } else {
             checkStationary(location)
         }
@@ -98,9 +98,9 @@ class LocationTrackingService : Service() {
             distFromAnchor
         )
         if (distFromAnchor[0] > STATIONARY_THRESHOLD_M) {
+            resetStationary(location)
             stationaryAnchor = location
             stationaryStart = System.currentTimeMillis()
-            stationaryReported = false
             Log.d("LocationTrackingService", "Movimiento detectado (${distFromAnchor[0].toInt()}m), reiniciando estacionario")
             return
         }
@@ -111,7 +111,13 @@ class LocationTrackingService : Service() {
         }
     }
 
-    private fun resetStationary() {
+    private fun resetStationary(currentLocation: Location? = null) {
+        if (stationaryReported && currentLocation != null && stationaryStart > 0L) {
+            val durationSeconds = ((System.currentTimeMillis() - stationaryStart) / 1000).toInt()
+            val anchor = stationaryAnchor ?: currentLocation
+            EventQueue.enqueue(this, anchor.latitude, anchor.longitude, "stationary_end", durationSeconds)
+            Log.d("LocationTrackingService", "STATIONARY_END enviado (${durationSeconds}s)")
+        }
         stationaryAnchor = null
         stationaryStart = 0L
         stationaryReported = false

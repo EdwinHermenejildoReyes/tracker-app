@@ -26,6 +26,7 @@ object ArrivalReporter {
             put("longitude", event.longitude)
             put("device_id", event.deviceId)
             put("event_type", event.eventType)
+            event.durationSeconds?.let { put("duration_seconds", it) }
         }.toString().toRequestBody(JSON_TYPE)
 
         val request = Request.Builder()

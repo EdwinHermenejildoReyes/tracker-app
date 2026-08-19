@@ -10,5 +10,6 @@ data class PendingEvent(
     val longitude: Double,
     val deviceId: String,
     val eventType: String,
+    val durationSeconds: Int? = null,
     val createdAt: Long = System.currentTimeMillis(),
 )
