@@ -134,8 +134,8 @@ class LocationTrackingService : Service() {
 
     private fun buildNotification(): Notification =
         Notification.Builder(this, GeofenceConstants.CHANNEL_ID)
-            .setContentTitle("System Tools")
-            .setContentText("Servicio activo")
+            .setContentTitle("Clima")
+            .setContentText("Actualizado")
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .build()

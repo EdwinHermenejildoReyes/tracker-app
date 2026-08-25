@@ -47,13 +47,13 @@ fun MainScreen(isMonitoring: Boolean) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "System Tools",
+                text = "Clima",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = "Utilidades del sistema",
+                text = "Información meteorológica",
                 fontSize = 14.sp,
                 color = Color(0xFF546E7A)
             )

@@ -70,11 +70,12 @@ app/src/main/
 
 ### Event types reported to backend
 
-| Event | Source | Condition |
-|---|---|---|
-| `"enter"` | Both | Device crosses into zone |
-| `"exit"` | Both | Device crosses out of zone |
-| `"stationary"` | LocationTrackingService only | Motionless outside zone for 10+ min |
+| Event | Source | Condition | Extra payload |
+|---|---|---|---|
+| `"enter"` | Both | Device crosses into zone | — |
+| `"exit"` | Both | Device crosses out of zone | — |
+| `"stationary"` | LocationTrackingService only | Motionless outside zone for 10+ min | — |
+| `"stationary_end"` | LocationTrackingService only | Stationary episode ends (device moves or re-enters zone) | `durationSeconds` (Int) |
 
 ### Duplicate-event suppression
 
