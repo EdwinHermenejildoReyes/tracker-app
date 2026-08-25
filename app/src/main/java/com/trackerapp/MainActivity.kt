@@ -88,6 +88,7 @@ class MainActivity : ComponentActivity() {
 
     private fun startMonitoring() {
         startForegroundService(Intent(this, LocationTrackingService::class.java))
+        WatchdogWorker.schedule(this)
         isMonitoring = true
     }
 

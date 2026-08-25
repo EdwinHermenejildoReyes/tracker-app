@@ -13,6 +13,7 @@ class BootReceiver : BroadcastReceiver() {
                 context.startForegroundService(Intent(context, LocationTrackingService::class.java))
                 GeofenceManager(context).registerGeofence()
                 EventQueue.scheduleUpload(context)
+                WatchdogWorker.schedule(context)
             }
         }
     }

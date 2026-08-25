@@ -8,6 +8,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.location.Location
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkRequest
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
@@ -17,10 +20,18 @@ class LocationTrackingService : Service() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
+    private lateinit var connectivityManager: ConnectivityManager
 
     private var stationaryAnchor: Location? = null
     private var stationaryStart: Long = 0L
     private var stationaryReported: Boolean = false
+
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            Log.d("LocationTrackingService", "Red disponible — disparando upload de pendientes")
+            EventQueue.scheduleUpload(this@LocationTrackingService)
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -32,6 +43,12 @@ class LocationTrackingService : Service() {
                 Thread { checkProximity(loc) }.start()
             }
         }
+        connectivityManager = getSystemService(ConnectivityManager::class.java)
+        connectivityManager.registerNetworkCallback(
+            NetworkRequest.Builder().build(),
+            networkCallback,
+        )
+        WatchdogWorker.schedule(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -143,6 +160,7 @@ class LocationTrackingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
